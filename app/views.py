@@ -37,7 +37,7 @@ def loginUser():
 @app.route("/api/getsession", methods=["GET"])
 def check_session():
   if current_user.is_authenticated:
-    return jsonify({"username": session['username']})
+    return jsonify({"login": True, "username": session['username']})
 
   return jsonify({"login": False})
 

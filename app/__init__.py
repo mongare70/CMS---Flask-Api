@@ -27,7 +27,9 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
 
     def __str__(self):
-        return f'{self.id} {self.firstname} {self.lastname} {self.username} {self.email}'
+        return {"id": self.id, "firstname": self.firstname, 
+        "lastname": self.lastname, "username": self.username,
+        "email": self.email}
 
 # load the views
 from app import views

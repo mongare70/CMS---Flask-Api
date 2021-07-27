@@ -29,6 +29,7 @@ def loginUser():
       if bcrypt.check_password_hash(user.password, request_data['password']):
         login_user(user)
         session['username'] = user.username
+        
         return jsonify({"login": True})
         
     return jsonify({"login": False})
@@ -47,4 +48,53 @@ def check_session():
 def logout():
   logout_user()
   return jsonify({"logout": True})
+
+
+@app.route("/api/editUser", methods=["POST"])
+@login_required
+def editUser():
+  request_data = json.loads(request.data)
+  user = User.query.filter_by(username=request_data['username']).first()
+  if user:
+    hashed_password = bcrypt.generate_password_hash(request_data['password'])
+    user.firstname = request_data['firstname']
+    user.lastname = request_data['lastname']
+    user.email = request_data['email']
+    user.password = hashed_password
+
+    db.session.commit()
+
+    return jsonify({"editUser": True})
+  
+  return jsonify({"editUser": False})
+
+
+@app.route("/api/deleteUser", methods=["POST"])
+@login_required
+def deleteUser():
+  username = json.loads(request.data)
+  user = User.query.filter_by(username=username).first()
+
+  if user:
+    db.session.delete(user)
+    db.session.commit()
+    logout()
+
+    return jsonify({"deleteUser": True})
+
+  return jsonify({"deleteUser": False})
+
+
+@app.route("/api/getUserData", methods=["POST"])
+@login_required
+def getUserData():
+  username = json.loads(request.data)
+  user = User.query.filter_by(username=username).first()
+
+  if user:
+    return jsonify(user.__str__())
+
+  return jsonify({"getUserData": False})
+
+
 

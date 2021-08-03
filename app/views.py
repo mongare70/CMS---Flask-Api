@@ -1,4 +1,4 @@
-from app import User, app, db, bcrypt
+from app import Users, app, db, bcrypt
 from flask import request, json, jsonify, session
 from flask_login import login_user, login_required, logout_user, current_user
 
@@ -6,14 +6,14 @@ from flask_login import login_user, login_required, logout_user, current_user
 @app.route("/api/createUser", methods=["POST"])
 def createUser():
     request_data = json.loads(request.data)
-    user = User.query.filter_by(username=request_data['username']).first()
+    user = Users.query.filter_by(username=request_data['username']).first()
     
     if user:
       return jsonify({ "registered": False})
 
     else:
-      hashed_password = bcrypt.generate_password_hash(request_data['password'])
-      user = User(username=request_data['username'],
+      hashed_password = bcrypt.generate_password_hash(request_data['password']).decode('utf-8')
+      user = Users(username=request_data['username'],
         email=request_data['email'],
         password=hashed_password)
 
@@ -26,7 +26,7 @@ def createUser():
 def loginUser():
 
     request_data = json.loads(request.data)
-    user = User.query.filter_by(username=request_data['username']).first()
+    user = Users.query.filter_by(username=request_data['username']).first()
     if user:
       if bcrypt.check_password_hash(user.password, request_data['password']):
         login_user(user)
@@ -56,9 +56,9 @@ def logout():
 @login_required
 def editUser():
   request_data = json.loads(request.data)
-  user = User.query.filter_by(username=request_data['username']).first()
+  user = Users.query.filter_by(username=request_data['username']).first()
   if user:
-    hashed_password = bcrypt.generate_password_hash(request_data['password'])
+    hashed_password = bcrypt.generate_password_hash(request_data['password']).decode('utf-8')
     user.firstname = request_data['firstname']
     user.lastname = request_data['lastname']
     user.email = request_data['email']
@@ -75,7 +75,7 @@ def editUser():
 @login_required
 def deleteUser():
   username = json.loads(request.data)
-  user = User.query.filter_by(username=username).first()
+  user = Users.query.filter_by(username=username).first()
 
   if user:
     db.session.delete(user)
@@ -91,7 +91,7 @@ def deleteUser():
 @login_required
 def getUserData():
   username = json.loads(request.data)
-  user = User.query.filter_by(username=username).first()
+  user = Users.query.filter_by(username=username).first()
 
   if user:
     return jsonify(user.__str__())

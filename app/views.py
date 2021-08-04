@@ -3,6 +3,10 @@ from flask import request, json, jsonify, session
 from flask_login import login_user, login_required, logout_user, current_user
 
 
+@app.route("/api", methods=["GET"])
+def apiTest():
+  return "<h1>Test Success</h1>"
+
 @app.route("/api/createUser", methods=["POST"])
 def createUser():
     request_data = json.loads(request.data)

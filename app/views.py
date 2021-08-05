@@ -4,14 +4,14 @@ from flask_login import login_user, login_required, logout_user, current_user
 from flask_cors import cross_origin
 
 
-@app.route("/api", methods=["GET"])
+@app.route("/api", methods=["GET", "POST"])
 @cross_origin()
 def apiTest():
   return "<h1>Test Success</h1>"
 
 
 @cross_origin()
-@app.route("/api/createUser", methods=["POST"])
+@app.route("/api/createUser", methods=["POST", "GET"])
 def createUser():
     request_data = json.loads(request.data)
     user = Users.query.filter_by(username=request_data['username']).first()
@@ -32,7 +32,7 @@ def createUser():
 
 
 @cross_origin()
-@app.route("/api/login", methods=["POST"])
+@app.route("/api/login", methods=["POST", "GET"])
 def loginUser():
 
     request_data = json.loads(request.data)
@@ -47,7 +47,7 @@ def loginUser():
 
 
 @cross_origin()
-@app.route("/api/getsession", methods=["GET"])
+@app.route("/api/getsession", methods=["GET", "POST"])
 def check_session():
   if current_user.is_authenticated:
     return jsonify({"login": True})
@@ -56,14 +56,14 @@ def check_session():
 
 
 @cross_origin()
-@app.route("/api/logout", methods=["GET"])
+@app.route("/api/logout", methods=["GET", "POST"])
 @login_required
 def logout():
   logout_user()
   return jsonify({"logout": True})
 
 @cross_origin()
-@app.route("/api/editUser", methods=["POST"])
+@app.route("/api/editUser", methods=["POST", "GET"])
 @login_required
 def editUser():
   request_data = json.loads(request.data)
@@ -83,7 +83,7 @@ def editUser():
 
 
 @cross_origin()
-@app.route("/api/deleteUser", methods=["POST"])
+@app.route("/api/deleteUser", methods=["POST", "GET"])
 @login_required
 def deleteUser():
   username = json.loads(request.data)
@@ -100,7 +100,7 @@ def deleteUser():
 
 
 @cross_origin()
-@app.route("/api/getUserData", methods=["GET"])
+@app.route("/api/getUserData", methods=["GET", "POST"])
 @login_required
 def getUserData():
   if current_user.is_authenticated:

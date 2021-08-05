@@ -6,7 +6,7 @@ from flask_cors import CORS, cross_origin
 import os
 
 # initialize the app 
-app = Flask(__name__, static_url_path='/api')
+app = Flask(__name__, static_url_path='/')
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['CORS_HEADERS'] = 'Content-Type'

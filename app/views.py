@@ -40,6 +40,7 @@ def loginUser():
       if bcrypt.check_password_hash(user.password, request_data['password']):
         login_user(user)
         session['username'] = user.username
+        session['logged_in']=True
         
         return jsonify({"login": True})
         
@@ -49,7 +50,8 @@ def loginUser():
 @cross_origin()
 @app.route("/api/getsession", methods=["GET"])
 def check_session():
-  if current_user.is_authenticated:
+  logged_in = session.get("logged_in")
+  if logged_in:
     return jsonify({"login": True, "username": session['username']})
 
   return jsonify({"login": False})
@@ -60,6 +62,8 @@ def check_session():
 @login_required
 def logout():
   logout_user()
+  session['logged_in']=None
+  session['username']=None
   return jsonify({"logout": True})
 
 @cross_origin()

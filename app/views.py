@@ -1,13 +1,16 @@
-from app import Users, app, db, bcrypt
+from app import Users, app, db, bcrypt, cross_origin
 from flask import request, json, jsonify, session
 from flask_login import login_user, login_required, logout_user, current_user
 
 
 @app.route("/api", methods=["GET"])
+@cross_origin()
 def apiTest():
   return "<h1>Test Success</h1>"
 
+
 @app.route("/api/createUser", methods=["POST"])
+@cross_origin()
 def createUser():
     request_data = json.loads(request.data)
     user = Users.query.filter_by(username=request_data['username']).first()
@@ -26,7 +29,9 @@ def createUser():
 
       return {"registered": True}
 
+
 @app.route("/api/login", methods=["POST"])
+@cross_origin()
 def loginUser():
 
     request_data = json.loads(request.data)
@@ -42,6 +47,7 @@ def loginUser():
 
 
 @app.route("/api/getsession", methods=["GET"])
+@cross_origin()
 def check_session():
   if current_user.is_authenticated:
     return jsonify({"login": True, "username": session['username']})
@@ -50,6 +56,7 @@ def check_session():
 
 
 @app.route("/api/logout", methods=["GET"])
+@cross_origin()
 @login_required
 def logout():
   logout_user()
@@ -57,6 +64,7 @@ def logout():
 
 
 @app.route("/api/editUser", methods=["POST"])
+@cross_origin()
 @login_required
 def editUser():
   request_data = json.loads(request.data)
@@ -76,6 +84,7 @@ def editUser():
 
 
 @app.route("/api/deleteUser", methods=["POST"])
+@cross_origin()
 @login_required
 def deleteUser():
   username = json.loads(request.data)
@@ -92,6 +101,7 @@ def deleteUser():
 
 
 @app.route("/api/getUserData", methods=["POST"])
+@cross_origin()
 @login_required
 def getUserData():
   username = json.loads(request.data)

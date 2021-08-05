@@ -5,7 +5,7 @@ from flask_login import UserMixin, LoginManager
 import os
 
 # initialize the app 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/api')
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)

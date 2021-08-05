@@ -30,16 +30,6 @@ class Users(db.Model, UserMixin):
     email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
 
-    # def __init__(self, firstname, lastname, username, email, password):
-    #     self.firstname = firstname
-    #     self.lastname = lastname
-    #     self.username = username
-    #     self.email = email
-    #     self.password = password
-
-    # def __repr__(self):
-    #     return '<id {}>'.format(self.id)
-
     def __str__(self):
         return {"id": self.id, "firstname": self.firstname, 
         "lastname": self.lastname, "username": self.username,

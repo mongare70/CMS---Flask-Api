@@ -48,6 +48,7 @@ def loginUser():
 
 @cross_origin()
 @app.route("/api/getsession", methods=["GET", "POST"])
+@login_required
 def check_session():
   if current_user.is_authenticated:
     return jsonify({"login": True})

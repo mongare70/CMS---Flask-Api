@@ -1,6 +1,7 @@
-from app import Users, app, db, bcrypt, cross_origin
-from flask import request, json, jsonify, session
+from app import Users, app, db, bcrypt
+from flask import request, json, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
+from flask_cors import cross_origin
 
 
 @app.route("/api", methods=["GET"])
@@ -39,7 +40,6 @@ def loginUser():
     if user:
       if bcrypt.check_password_hash(user.password, request_data['password']):
         login_user(user)
-        session['username'] = user.username
         
         return jsonify({"login": True})
         
@@ -50,7 +50,7 @@ def loginUser():
 @app.route("/api/getsession", methods=["GET"])
 def check_session():
   if current_user.is_authenticated:
-    return jsonify({"login": True, "username": session['username']})
+    return jsonify({"login": True})
 
   return jsonify({"login": False})
 
@@ -100,11 +100,11 @@ def deleteUser():
 
 
 @cross_origin()
-@app.route("/api/getUserData", methods=["POST"])
+@app.route("/api/getUserData", methods=["GET"])
 @login_required
 def getUserData():
-  username = json.loads(request.data)
-  user = Users.query.filter_by(username=username).first()
+  if current_user.is_authenticated:
+     user = Users.query.filter_by(id=current_user.id).first()
 
   if user:
     return jsonify(user.__str__())

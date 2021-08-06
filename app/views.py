@@ -1,6 +1,5 @@
 from app import Users, app, db, bcrypt
 from flask import request, json, jsonify
-from flask_login import login_user, login_required, logout_user, current_user
 from flask_cors import cross_origin
 
 
@@ -39,32 +38,14 @@ def loginUser():
     user = Users.query.filter_by(username=request_data['username']).first()
     if user:
       if bcrypt.check_password_hash(user.password, request_data['password']):
-        login_user(user)
         
-        return jsonify({"login": True})
+        return jsonify({"login": True, "username": user.username})
         
     return jsonify({"login": False})
-
-
-@cross_origin()
-@app.route("/api/getsession", methods=["GET", "POST"])
-def check_session():
-  if current_user.is_authenticated:
-    return jsonify({"login": True})
-
-  return jsonify({"login": False})
-
-
-@cross_origin()
-@app.route("/api/logout", methods=["GET", "POST"])
-@login_required
-def logout():
-  logout_user()
-  return jsonify({"logout": True})
+   
 
 @cross_origin()
 @app.route("/api/editUser", methods=["POST", "GET"])
-@login_required
 def editUser():
   request_data = json.loads(request.data)
   user = Users.query.filter_by(username=request_data['username']).first()
@@ -76,15 +57,13 @@ def editUser():
     user.password = hashed_password
 
     db.session.commit()
-
     return jsonify({"editUser": True})
-  
+    
   return jsonify({"editUser": False})
 
 
 @cross_origin()
 @app.route("/api/deleteUser", methods=["POST", "GET"])
-@login_required
 def deleteUser():
   username = json.loads(request.data)
   user = Users.query.filter_by(username=username).first()
@@ -92,7 +71,6 @@ def deleteUser():
   if user:
     db.session.delete(user)
     db.session.commit()
-    logout()
 
     return jsonify({"deleteUser": True})
 
@@ -101,10 +79,9 @@ def deleteUser():
 
 @cross_origin()
 @app.route("/api/getUserData", methods=["GET", "POST"])
-@login_required
 def getUserData():
-  if current_user.is_authenticated:
-     user = Users.query.filter_by(id=current_user.id).first()
+  username = json.loads(request.data)
+  user = Users.query.filter_by(username=username).first()
 
   if user:
     return jsonify(user.__str__())

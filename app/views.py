@@ -2,13 +2,14 @@ from app import Users, app, db, bcrypt
 from flask import request, json, jsonify
 from flask_cors import cross_origin
 
-
+# API test route
 @app.route("/api", methods=["GET", "POST"])
 @cross_origin()
 def apiTest():
   return "<h1>Test Success</h1>"
 
 
+# User registration route
 @cross_origin()
 @app.route("/api/createUser", methods=["POST", "GET"])
 def createUser():
@@ -30,6 +31,7 @@ def createUser():
       return {"registered": True}
 
 
+# User login route
 @cross_origin()
 @app.route("/api/login", methods=["POST", "GET"])
 def loginUser():
@@ -44,6 +46,7 @@ def loginUser():
     return jsonify({"login": False})
    
 
+#Edit user route
 @cross_origin()
 @app.route("/api/editUser", methods=["POST", "GET"])
 def editUser():
@@ -62,6 +65,7 @@ def editUser():
   return jsonify({"editUser": False})
 
 
+# Delete user route
 @cross_origin()
 @app.route("/api/deleteUser", methods=["POST", "GET"])
 def deleteUser():
@@ -77,6 +81,7 @@ def deleteUser():
   return jsonify({"deleteUser": False})
 
 
+# Get user data route
 @cross_origin()
 @app.route("/api/getUserData", methods=["GET", "POST"])
 def getUserData():

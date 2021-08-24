@@ -46,23 +46,45 @@ def loginUser():
     return jsonify({"login": False})
    
 
-#Edit user route
+#Edit user firstname, lastname, and email route
 @cross_origin()
 @app.route("/api/editUser", methods=["POST", "GET"])
 def editUser():
   request_data = json.loads(request.data)
   user = Users.query.filter_by(username=request_data['username']).first()
   if user:
-    hashed_password = bcrypt.generate_password_hash(request_data['password']).decode('utf-8')
-    user.firstname = request_data['firstname']
-    user.lastname = request_data['lastname']
-    user.email = request_data['email']
-    user.password = hashed_password
+    if bcrypt.check_password_hash(user.password, request_data['password']):
+      user.firstname = request_data['firstname']
+      user.lastname = request_data['lastname']
+      user.email = request_data['email']
 
-    db.session.commit()
-    return jsonify({"editUser": True})
+      db.session.commit()
+      return jsonify({"editUser": True})
+
+    else:
+      return jsonify({"password": False})
     
   return jsonify({"editUser": False})
+
+  
+#Edit user password route
+@cross_origin()
+@app.route("/api/editUserPassword", methods=["POST", "GET"])
+def editUserPassword():
+  request_data = json.loads(request.data)
+  user = Users.query.filter_by(username=request_data['username']).first()
+  if user:
+    if bcrypt.check_password_hash(user.password, request_data['oldPassword']):
+      hashed_password = bcrypt.generate_password_hash(request_data['newPassword']).decode('utf-8')
+      user.password = hashed_password
+
+      db.session.commit()
+      return jsonify({"editUserPassword": True})
+
+    else:
+      return jsonify({"password": False})
+    
+  return jsonify({"editUserPassword": False})
 
 
 # Delete user route

@@ -1,19 +1,27 @@
-from app import User, app, db, bcrypt
-from flask import request, json, jsonify, session
-from flask_login import login_user, login_required, logout_user, current_user
+from app import Users, app, db, bcrypt
+from flask import request, json, jsonify
+from flask_cors import cross_origin
+
+# API test route
+@app.route("/api", methods=["GET", "POST"])
+@cross_origin()
+def apiTest():
+  return "<h1>Test Success</h1>"
 
 
-@app.route("/api/createUser", methods=["POST"])
+# User registration route
+@cross_origin()
+@app.route("/api/createUser", methods=["POST", "GET"])
 def createUser():
     request_data = json.loads(request.data)
-    user = User.query.filter_by(username=request_data['username']).first()
+    user = Users.query.filter_by(username=request_data['username']).first()
     
     if user:
       return jsonify({ "registered": False})
 
     else:
-      hashed_password = bcrypt.generate_password_hash(request_data['password'])
-      user = User(username=request_data['username'],
+      hashed_password = bcrypt.generate_password_hash(request_data['password']).decode('utf-8')
+      user = Users(username=request_data['username'],
         email=request_data['email'],
         password=hashed_password)
 
@@ -22,76 +30,85 @@ def createUser():
 
       return {"registered": True}
 
-@app.route("/api/login", methods=["POST"])
+
+# User login route
+@cross_origin()
+@app.route("/api/login", methods=["POST", "GET"])
 def loginUser():
 
     request_data = json.loads(request.data)
-    user = User.query.filter_by(username=request_data['username']).first()
+    user = Users.query.filter_by(username=request_data['username']).first()
     if user:
       if bcrypt.check_password_hash(user.password, request_data['password']):
-        login_user(user)
-        session['username'] = user.username
         
-        return jsonify({"login": True})
+        return jsonify({"login": True, "username": user.username})
         
     return jsonify({"login": False})
+   
 
-
-@app.route("/api/getsession", methods=["GET"])
-def check_session():
-  if current_user.is_authenticated:
-    return jsonify({"login": True, "username": session['username']})
-
-  return jsonify({"login": False})
-
-
-@app.route("/api/logout", methods=["GET"])
-@login_required
-def logout():
-  logout_user()
-  return jsonify({"logout": True})
-
-
-@app.route("/api/editUser", methods=["POST"])
-@login_required
+#Edit user firstname, lastname, and email route
+@cross_origin()
+@app.route("/api/editUser", methods=["POST", "GET"])
 def editUser():
   request_data = json.loads(request.data)
-  user = User.query.filter_by(username=request_data['username']).first()
+  user = Users.query.filter_by(username=request_data['username']).first()
   if user:
-    hashed_password = bcrypt.generate_password_hash(request_data['password'])
-    user.firstname = request_data['firstname']
-    user.lastname = request_data['lastname']
-    user.email = request_data['email']
-    user.password = hashed_password
+    if bcrypt.check_password_hash(user.password, request_data['password']):
+      user.firstname = request_data['firstname']
+      user.lastname = request_data['lastname']
+      user.email = request_data['email']
 
-    db.session.commit()
+      db.session.commit()
+      return jsonify({"editUser": True})
 
-    return jsonify({"editUser": True})
-  
+    else:
+      return jsonify({"password": False})
+    
   return jsonify({"editUser": False})
 
+  
+#Edit user password route
+@cross_origin()
+@app.route("/api/editUserPassword", methods=["POST", "GET"])
+def editUserPassword():
+  request_data = json.loads(request.data)
+  user = Users.query.filter_by(username=request_data['username']).first()
+  if user:
+    if bcrypt.check_password_hash(user.password, request_data['oldPassword']):
+      hashed_password = bcrypt.generate_password_hash(request_data['newPassword']).decode('utf-8')
+      user.password = hashed_password
 
-@app.route("/api/deleteUser", methods=["POST"])
-@login_required
+      db.session.commit()
+      return jsonify({"editUserPassword": True})
+
+    else:
+      return jsonify({"password": False})
+    
+  return jsonify({"editUserPassword": False})
+
+
+# Delete user route
+@cross_origin()
+@app.route("/api/deleteUser", methods=["POST", "GET"])
 def deleteUser():
   username = json.loads(request.data)
-  user = User.query.filter_by(username=username).first()
+  user = Users.query.filter_by(username=username).first()
 
   if user:
     db.session.delete(user)
     db.session.commit()
-    logout()
 
     return jsonify({"deleteUser": True})
 
   return jsonify({"deleteUser": False})
 
 
-@app.route("/api/getUserData", methods=["POST"])
-@login_required
+# Get user data route
+@cross_origin()
+@app.route("/api/getUserData", methods=["GET", "POST"])
 def getUserData():
   username = json.loads(request.data)
-  user = User.query.filter_by(username=username).first()
+  user = Users.query.filter_by(username=username).first()
 
   if user:
     return jsonify(user.__str__())

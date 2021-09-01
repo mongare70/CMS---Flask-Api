@@ -1,5 +1,5 @@
 import unittest
-from app import User, bcrypt
+from app import Users, bcrypt
 
 class TestModels(unittest.TestCase):
     def test_new_user(self):
@@ -9,7 +9,7 @@ class TestModels(unittest.TestCase):
         then check the username, email, and hashed_password are defined correctly
         """
         hashed_password = bcrypt.generate_password_hash("123456")
-        user = User(username="mama", email="mama@example.com", password=hashed_password)
+        user = Users(username="mama", email="mama@example.com", password=hashed_password)
         self.assertEqual(user.firstname, None)
         self.assertEqual(user.lastname, None)
         self.assertEqual(user.username, "mama")

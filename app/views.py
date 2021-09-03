@@ -1,6 +1,8 @@
-from app import Users, app, db, bcrypt
+from flask.helpers import url_for
+from app import Users, app, db, bcrypt, mail
 from flask import request, json, jsonify
 from flask_cors import cross_origin
+from flask_mail import Message
 
 # API test route
 @app.route("/api", methods=["GET", "POST"])
@@ -116,4 +118,46 @@ def getUserData():
   return jsonify({"getUserData": False})
 
 
+def send_mail(user):
+  token = user.get_token()
+  msg = Message('Password Reset Request', recipients=[user.email], sender='noreply@cms.com')
+  msg.body=f""" To reset your password. Please click the link below.
 
+  {'https://mystifying-tesla-b3b940.netlify.app/reset_password/{}'.format(token)}
+
+  If you didn't send a password reset request. Please ignore this message.
+
+  
+  """
+
+  mail.send(msg)
+
+
+# Reset Password route
+@cross_origin()
+@app.route("/api/reset_password", methods=["GET", "POST"])
+def reset_password_request():
+  email = json.loads(request.data)
+  user = Users.query.filter_by(email=email).first()
+
+  if user:
+    send_mail(user)
+    return jsonify({"password_reset": True})
+
+  return jsonify({"reset": False})
+
+
+# Reset Password token route
+@cross_origin()
+@app.route("/api/reset_password_form/<token>", methods=["GET", "POST"])
+def reset_password_token(token):
+  user=Users.verify_token(token)
+  if user is None:
+    return jsonify({"reset": False})
+
+  password =  json.loads(request.data)
+  hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+  user.password = hashed_password
+
+  db.session.commit()
+  return jsonify({"reset": True})

@@ -123,7 +123,7 @@ def send_mail(user):
   msg = Message('Password Reset Request', recipients=[user.email], sender='noreply@cms.com')
   msg.body=f""" To reset your password. Please click the link below.
 
-  {'https://mystifying-tesla-b3b940.netlify.app/reset_password/{}'.format(token)}
+  {'https://compassionate-turing-f71959.netlify.app/reset_password/{}'.format(token)}
 
   If you didn't send a password reset request. Please ignore this message.
 

@@ -19,7 +19,12 @@ def createUser():
     user = Users.query.filter_by(username=request_data['username']).first()
     
     if user:
-      return jsonify({ "registered": False})
+      return jsonify({ "username": False})
+
+    user2 = Users.query.filter_by(email=request_data['email']).first()
+
+    if user2:
+      return jsonify({ "email": False})
 
     else:
       hashed_password = bcrypt.generate_password_hash(request_data['password']).decode('utf-8')
@@ -125,6 +130,7 @@ def send_mail(user):
 
   {'https://compassionate-turing-f71959.netlify.app/reset_password/{}'.format(token)}
 
+  This link will expire in 5 minutes.
   If you didn't send a password reset request. Please ignore this message.
 
   

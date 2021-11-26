@@ -128,7 +128,7 @@ def send_mail(user):
   msg = Message('Password Reset Request', recipients=[user.email], sender='noreply@cms.com')
   msg.body=f""" To reset your password. Please click the link below.
 
-  {'https://compassionate-turing-f71959.netlify.app/reset_password/{}'.format(token)}
+  {'http://localhost:3000/reset_password/{}'.format(token)}
 
   This link will expire in 5 minutes.
   If you didn't send a password reset request. Please ignore this message.
@@ -136,7 +136,11 @@ def send_mail(user):
   
   """
 
-  mail.send(msg)
+  try:
+        mail.send(msg)
+        return jsonify({"sent": True})
+  except:
+      return jsonify({"sent": False})
 
 
 # Reset Password route
